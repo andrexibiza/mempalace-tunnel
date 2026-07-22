@@ -3,18 +3,18 @@
 # Runs at 2AM silently while you sleep. Synthesizes 48 hours of agent activity
 # into structured insight stored in MemPalace under your configured factbook wing.
 #
-# Your memory doesn't need a frontier model. Point this at the cheapest model
-# that does the job for your corpus. The model below is an example override,
-# not a requirement.
+# The dream cycle is retrieval, synthesis, and record keeping. Use the cheapest
+# model that does the job for your corpus. Save expensive models for work that
+# actually needs them. The model below is an example override, not a requirement.
 
 # ── Cron schedule (2AM daily) ─────────────────────────────────────────────
 schedule: "0 2 * * *"
 
 # ── Model override — use ANY model from ANY provider ──────────────────────
 model:
-  # --- Example local synthesis model ---
-  provider: ollama
-  model: gemma4:e4b
+  # --- Example reasoning model (DeepSeek V4 Pro Max) ---
+  provider: deepseek
+  model: deepseek/deepseek-v4-pro-max
 
   # --- Alternatives — uncomment and pick one ---
   # provider: openai

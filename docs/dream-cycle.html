@@ -97,14 +97,14 @@
       <div class="split">
         <h2>Your memory does not need a frontier model.</h2>
         <div class="stack">
-          <p>The dream cycle is retrieval, synthesis, and record keeping. Use the cheapest model that produces reliable output for your corpus. Save the expensive models for work that actually needs them. The config below is an example, not a requirement.</p>
+          <p>The dream cycle is retrieval, synthesis, and record keeping. Use the cheapest model that produces reliable output for your corpus. Save the expensive models for work that actually needs them. DeepSeek V4 Pro Max is the example below; it is an override, not a requirement.</p>
           <div class="terminal">
             <div class="terminal-head">dream-cycle-config.yaml</div>
             <pre>schedule: "0 2 * * *"
 
 model:
-  provider: ollama
-  model: gemma4:e4b
+  provider: deepseek
+  model: deepseek/deepseek-v4-pro-max
 
 max_iterations: 200
 deliver: local</pre>
