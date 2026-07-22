@@ -9,7 +9,7 @@
 # Run this once:
 #   python3 -c "import secrets; print('mcp-' + secrets.token_hex(16))"
 #
-# Example output: mcp-8916b95ae6876c8ba69feb9d08f23b63
+# Example output: mcp-REPLACE_WITH_32_RANDOM_HEX
 #
 # SAVE THIS TOKEN. Store it in your password manager.
 # If you lose it, you'll have to restart the MCP server with a new token
@@ -17,30 +17,30 @@
 
 # ── Step 2: Start the MCP server with the token ──────────────────────────
 # Linux/macOS:
-#   export MEMPALACE_MCP_HTTP_TOKEN="your-token-here"
+#   export MEMPALACE_MCP_HTTP_TOKEN="<TOKEN>"
 #   export MEMPALACE_WRITER_ROLE="mcp-http-singleton"
-#   mempalace mcp serve --host 127.0.0.1 --port 8765
+#   mempalace-mcp --transport http --host 127.0.0.1 --port 8765
 #
 # Windows (PowerShell):
-#   $env:MEMPALACE_MCP_HTTP_TOKEN = "your-token-here"
+#   $env:MEMPALACE_MCP_HTTP_TOKEN = "<TOKEN>"
 #   $env:MEMPALACE_WRITER_ROLE = "mcp-http-singleton"
-#   Start-Process pythonw -ArgumentList "-m","mempalace.mcp_server","--palace","$HOME\.mempalace","--transport","http","--host","127.0.0.1","--port","8765"
+#   Start-Process -NoNewWindow -FilePath "mempalace-mcp" -ArgumentList "--transport","http","--host","127.0.0.1","--port","8765"
 
 # ── Step 3: Add the token to your Hermes config ──────────────────────────
-# In ~/.hermes/config.yaml, under mcp_servers.mempalace:
+# In your Hermes config file, under mcp_servers.mempalace:
 #
 #   mcp_servers:
 #     mempalace:
 #       url: http://127.0.0.1:8765/mcp
 #       headers:
-#         Authorization: "Bearer your-token-here"
+#         Authorization: "Bearer <TOKEN>"
 #
 # For cloud agents using the tunnel:
 #   mcp_servers:
 #     mempalace:
 #       url: https://mempalace.yourdomain.com/mcp
 #       headers:
-#         Authorization: "Bearer your-token-here"
+#         Authorization: "Bearer <TOKEN>"
 
 # ── Verification ─────────────────────────────────────────────────────────
 # Without token (should return 401):
@@ -49,7 +49,7 @@
 #
 # With token (should return 200 + tool list):
 #   curl -X POST http://127.0.0.1:8765/mcp -H "Content-Type: application/json" \
-#     -H "Authorization: Bearer your-token-here" \
+#     -H "Authorization: Bearer <TOKEN>" \
 #     -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 
 # ── Important ────────────────────────────────────────────────────────────

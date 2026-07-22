@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="MemPalace Bridge serves local MemPalace memory to cloud agents through Cloudflare Tunnel: your hardware, your code, your memory graph, $0." />
+  <title>MemPalace Bridge — Free private agent memory</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07090d;
+      --bg-2: #0d1219;
+      --panel: #101821;
+      --panel-2: #0b1118;
+      --ink: #f1eadc;
+      --muted: #9ca8b6;
+      --quiet: #6f7c89;
+      --line: rgba(241, 234, 220, 0.13);
+      --line-strong: rgba(241, 234, 220, 0.22);
+      --accent: #ffb86b;
+      --accent-2: #72f0c7;
+      --danger: #ff7b7b;
+      --code: #d8e6f3;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+      --radius: 22px;
+      --max: 1180px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --sans: Avenir Next, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
+      --serif: Georgia, Cambria, "Times New Roman", serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255, 184, 107, 0.12), transparent 34rem),
+        radial-gradient(circle at 80% 18%, rgba(114, 240, 199, 0.08), transparent 30rem),
+        linear-gradient(180deg, var(--bg), #05070a 58%, #020304);
+      color: var(--ink);
+      font-family: var(--sans);
+      letter-spacing: -0.01em;
+    }
+
+    a { color: inherit; text-decoration-color: rgba(255, 184, 107, 0.45); text-underline-offset: 0.18em; }
+    a:hover { color: var(--accent); }
+    code, pre { font-family: var(--mono); }
+    ::selection { background: rgba(255, 184, 107, 0.26); color: var(--ink); }
+
+    .frame {
+      width: min(var(--max), calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(20px);
+      background: rgba(7, 9, 13, 0.78);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav-inner {
+      width: min(var(--max), calc(100% - 40px));
+      margin: 0 auto;
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .mark {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 760;
+      letter-spacing: -0.03em;
+    }
+
+    .glyph {
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--line-strong);
+      background: linear-gradient(145deg, rgba(255, 184, 107, 0.18), rgba(114, 240, 199, 0.08));
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+    }
+    .glyph::before { content: ""; width: 13px; height: 13px; border: 2px solid var(--accent); border-top-color: var(--accent-2); transform: rotate(45deg); }
+
+    .nav-links { display: flex; align-items: center; gap: 18px; color: var(--muted); font-size: 14px; }
+    .nav-links a { text-decoration: none; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: 1px solid var(--line-strong);
+      background: rgba(255,255,255,0.04);
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 700;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .button.primary { background: var(--ink); color: #101015; border-color: var(--ink); }
+    .button:hover { transform: translateY(-1px); color: var(--ink); }
+
+    .hero {
+      padding: 88px 0 62px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.04fr) minmax(360px, 0.76fr);
+      gap: 42px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      color: var(--accent-2);
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: 1px solid rgba(114,240,199,0.25);
+      background: rgba(114,240,199,0.06);
+      padding: 8px 11px;
+      border-radius: 999px;
+      margin-bottom: 22px;
+    }
+
+    h1, h2, h3 { margin: 0; letter-spacing: -0.055em; }
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(54px, 9vw, 112px);
+      line-height: 0.91;
+      font-weight: 500;
+      max-width: 900px;
+      text-wrap: balance;
+    }
+    h2 {
+      font-family: var(--serif);
+      font-size: clamp(36px, 5vw, 64px);
+      line-height: 0.96;
+      font-weight: 500;
+      text-wrap: balance;
+    }
+    h3 { font-size: 22px; line-height: 1.1; }
+    p { color: var(--muted); font-size: 18px; line-height: 1.58; margin: 0; }
+    .lead { margin-top: 28px; max-width: 760px; font-size: clamp(20px, 2vw, 26px); color: #d8deE5; line-height: 1.38; }
+    .thesis { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 10px; }
+    .pill { font-family: var(--mono); color: var(--ink); border: 1px solid var(--line); background: rgba(255,255,255,0.035); border-radius: 999px; padding: 8px 11px; font-size: 12px; }
+
+    .terminal-card {
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(16,24,33,0.92), rgba(5,8,12,0.92));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .terminal-head {
+      height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+      color: var(--quiet);
+      font-family: var(--mono);
+      font-size: 12px;
+      background: rgba(255,255,255,0.025);
+    }
+    .dots { display: flex; gap: 7px; }
+    .dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--quiet); opacity: 0.8; }
+    .dots i:nth-child(1) { background: #ff7b7b; }
+    .dots i:nth-child(2) { background: #ffcc66; }
+    .dots i:nth-child(3) { background: #72f0c7; }
+    pre {
+      margin: 0;
+      padding: 20px;
+      white-space: pre-wrap;
+      color: var(--code);
+      font-size: 13px;
+      line-height: 1.62;
+      overflow-x: auto;
+    }
+    .prompt { color: var(--accent); }
+    .ok { color: var(--accent-2); }
+    .muted { color: var(--quiet); }
+
+    section { padding: 72px 0; border-top: 1px solid var(--line); }
+    .section-head { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 36px; align-items: start; margin-bottom: 32px; }
+    .section-head p { max-width: 680px; }
+
+    .diagram {
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(180deg, var(--panel), var(--panel-2));
+      background-size: 28px 28px, 28px 28px, auto;
+      padding: 26px;
+      box-shadow: var(--shadow);
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      position: relative;
+    }
+    .node {
+      min-height: 168px;
+      border: 1px solid var(--line);
+      background: rgba(7, 9, 13, 0.72);
+      border-radius: 18px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .node b { color: var(--ink); display: block; font-size: 18px; }
+    .node span { color: var(--muted); font-size: 14px; line-height: 1.42; }
+    .node code { color: var(--accent-2); font-size: 12px; }
+    .connector {
+      align-self: center;
+      text-align: center;
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 20px;
+      opacity: 0.9;
+    }
+    .flow.compact { grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr; gap: 10px; }
+    .flow.compact .node { min-height: 155px; }
+
+    .split { display: grid; grid-template-columns: 0.88fr 1.12fr; gap: 30px; align-items: start; }
+    .panel {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.035);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .panel p { font-size: 16px; }
+    .stack { display: grid; gap: 14px; }
+    .row {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .row:last-child { border-bottom: 0; }
+    .row strong { font-family: var(--mono); color: var(--accent); font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .row span { color: var(--muted); line-height: 1.5; }
+
+    .code-block { margin-top: 18px; border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: #05070a; }
+    .code-title { display: flex; justify-content: space-between; gap: 16px; padding: 12px 16px; color: var(--quiet); border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 12px; }
+    .copy { cursor: pointer; color: var(--accent-2); background: none; border: 0; font: inherit; padding: 0; }
+
+    .note {
+      border-left: 3px solid var(--accent);
+      padding: 18px 20px;
+      background: rgba(255,184,107,0.065);
+      border-radius: 0 16px 16px 0;
+      color: var(--ink);
+    }
+    .note p { color: #e7d9c6; }
+
+    .footer { padding: 42px 0 58px; color: var(--quiet); border-top: 1px solid var(--line); }
+    .footer-inner { display: flex; justify-content: space-between; gap: 22px; flex-wrap: wrap; }
+
+    @media (max-width: 930px) {
+      .hero, .section-head, .split { grid-template-columns: 1fr; }
+      .hero { padding-top: 56px; }
+      .nav-links { display: none; }
+      .flow.compact { grid-template-columns: 1fr; }
+      .connector { transform: rotate(90deg); padding: 4px 0; }
+      .row { grid-template-columns: 1fr; gap: 6px; }
+    }
+    @media (max-width: 560px) {
+      .frame, .nav-inner { width: min(100% - 24px, var(--max)); }
+      section { padding: 52px 0; }
+      .diagram, .panel { padding: 18px; }
+      pre { font-size: 12px; }
+      h1 { font-size: 52px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .button:hover { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a class="mark" href="#top" aria-label="MemPalace Bridge home"><span class="glyph" aria-hidden="true"></span><span>MemPalace Bridge</span></a>
+      <div class="nav-links">
+        <a href="#how">How it works</a>
+        <a href="#setup">Setup</a>
+        <a href="#quality">Memory quality</a>
+        <a href="#security">Security</a>
+        <a href="dream-cycle.html">Dream Cycle</a>
+        <a class="button" href="https://github.com/andrexibiza/mempalace-tunnel">GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="top" class="frame">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">local-first MCP tunnel</div>
+        <h1>Private agent memory without another monthly bill.</h1>
+        <p class="lead">MemPalace Bridge lets cloud agents reach the MemPalace running on your own machine through a Cloudflare Tunnel. Your hardware. Your code. Your memory graph. $0.</p>
+        <div class="thesis" aria-label="Core claims">
+          <span class="pill">no open inbound ports</span>
+          <span class="pill">no hosted vector database</span>
+          <span class="pill">MCP-native</span>
+          <span class="pill">Cloudflare Tunnel</span>
+        </div>
+      </div>
+
+      <aside class="terminal-card" aria-label="Quick start command preview">
+        <div class="terminal-head"><span>bridge.local</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+        <pre><span class="prompt">$</span> pip install mempalace
+<span class="prompt">$</span> export MEMPALACE_WRITER_ROLE="mcp-http-singleton"
+<span class="prompt">$</span> mempalace init --yes --no-llm .
+<span class="prompt">$</span> mempalace-mcp --transport http --host 127.0.0.1 --port 8765
+<span class="ok">✓</span> local MCP server ready
+
+<span class="prompt">$</span> cloudflared tunnel --url http://127.0.0.1:8765
+<span class="ok">✓</span> cloud agents can reach your local memory</pre>
+      </aside>
+    </header>
+
+    <section id="how" aria-labelledby="how-title">
+      <div class="section-head">
+        <h2 id="how-title">The bridge is the missing piece.</h2>
+        <p>The model is not the system. A useful agent needs tools, records, recovery, and a memory store it can come back to tomorrow. MemPalace Bridge keeps the memory local and exposes only the MCP surface your agents need.</p>
+      </div>
+      <div class="diagram" role="img" aria-label="Local machine connects to MCP HTTP on port 8765, then Cloudflare Tunnel, then cloud agents.">
+        <div class="flow compact">
+          <div class="node"><b>Your machine</b><span>MemPalace runs beside your files, records, and agent runtime.</span><code>local storage</code></div>
+          <div class="connector" aria-hidden="true">→</div>
+          <div class="node"><b>MCP HTTP</b><span>A local endpoint exposes memory tools to authorized clients.</span><code>127.0.0.1:8765/mcp</code></div>
+          <div class="connector" aria-hidden="true">→</div>
+          <div class="node"><b>Cloudflare Tunnel</b><span>No open inbound ports. The public edge routes back to localhost.</span><code>https://…/mcp</code></div>
+          <div class="connector" aria-hidden="true">→</div>
+          <div class="node"><b>Cloud agents</b><span>Hermes and other MCP clients retrieve context without making you start over.</span><code>Bearer token</code></div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="why-title">
+      <div class="split">
+        <div>
+          <h2 id="why-title">Agent memory should not be a subscription trap.</h2>
+        </div>
+        <div class="stack">
+          <p>The AI space is full of companies trying to sell memory back to you: hosted vector databases, embedding APIs, retrieval fees, dashboards around data you already own.</p>
+          <p>MemPalace Bridge takes the opposite route. Keep the memory graph on your hardware. Let agents access it through a narrow, token-protected tunnel. Replace models whenever you want. Keep the records.</p>
+          <div class="note"><p><strong>Practical test:</strong> can the agent hold context, use tools, check reality, make something useful, leave receipts, and come back tomorrow without making you restart the whole story?</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="setup" aria-labelledby="setup-title">
+      <div class="section-head">
+        <h2 id="setup-title">Setup path.</h2>
+        <p>Install MemPalace, configure local memory quality, start the local MCP server, then expose that server through Cloudflare Tunnel. Keep the tunnel protected before using it from the public internet.</p>
+      </div>
+
+      <div class="split">
+        <div class="panel stack">
+          <div class="row"><strong>01</strong><span>Start MemPalace locally.</span></div>
+          <div class="row"><strong>02</strong><span>Expose <code>127.0.0.1:8765</code> through Cloudflare Tunnel.</span></div>
+          <div class="row"><strong>03</strong><span>Point Hermes or another MCP client at the tunnel URL with a bearer token.</span></div>
+        </div>
+        <div class="terminal-card">
+          <div class="terminal-head"><span>quick-start.sh</span><button class="copy" type="button" data-copy="quickstart">copy</button></div>
+          <pre id="quickstart">pip install mempalace
+export MEMPALACE_WRITER_ROLE="mcp-http-singleton"
+mempalace init --yes --no-llm .
+mempalace-mcp --transport http --host 127.0.0.1 --port 8765
+
+# another terminal
+cloudflared tunnel --url http://127.0.0.1:8765</pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="quality" aria-labelledby="quality-title">
+      <div class="section-head">
+        <h2 id="quality-title">The bridge is transport. Build the palace correctly.</h2>
+        <p>A tunnel to weak recall is still weak recall. Use local embeddings before you mine real content, and use LLM-assisted init when you want better entity and origin refinement.</p>
+      </div>
+      <div class="split">
+        <div class="panel stack">
+          <div class="row"><strong>embeddings</strong><span><code>embeddinggemma</code> gives local multilingual vector recall. <code>minilm</code> is smaller and English-focused.</span></div>
+          <div class="row"><strong>device</strong><span>Use <code>auto</code>, <code>cpu</code>, <code>cuda</code>, or <code>dml</code> depending on your machine.</span></div>
+          <div class="row"><strong>LLM setup</strong><span>Use local Ollama for assisted init, or <code>--no-llm</code> when you only need a non-interactive smoke test.</span></div>
+        </div>
+        <div class="terminal-card">
+          <div class="terminal-head"><span>memory-quality.sh</span><button class="copy" type="button" data-copy="qualitycmd">copy</button></div>
+          <pre id="qualitycmd">export MEMPALACE_LOCAL_EMBEDDINGS=1
+export MEMPALACE_EMBEDDING_MODEL=embeddinggemma
+export MEMPALACE_EMBEDDING_DEVICE=auto
+export MEMPALACE_EMBEDDING_THREADS=4
+
+export MEMPALACE_LLM_PROVIDER=ollama
+export MEMPALACE_LLM_MODEL=gemma4:e4b
+mempalace init --yes --llm-provider ollama --llm-model gemma4:e4b .
+
+# If the palace already exists and needs its embedder identity recorded:
+mempalace palace set-embedder --model embeddinggemma</pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="security" aria-labelledby="security-title">
+      <div class="section-head">
+        <h2 id="security-title">Do not put an unauthenticated memory endpoint on the internet.</h2>
+        <p>Cloudflare encrypts the route to the edge. It does not decide who is allowed to read your memory. Use a bearer token before connecting cloud agents through a public tunnel.</p>
+      </div>
+      <div class="terminal-card">
+        <div class="terminal-head"><span>auth-token-config</span><button class="copy" type="button" data-copy="auth">copy</button></div>
+        <pre id="auth">python3 -c "import secrets; print('mcp-' + secrets.token_hex(16))"
+
+export MEMPALACE_MCP_HTTP_TOKEN="&lt;TOKEN&gt;"
+export MEMPALACE_WRITER_ROLE="mcp-http-singleton"
+mempalace-mcp --transport http --host 127.0.0.1 --port 8765</pre>
+      </div>
+    </section>
+
+    <section aria-labelledby="dream-title">
+      <div class="split">
+        <div>
+          <h2 id="dream-title">Optional: nightly synthesis.</h2>
+        </div>
+        <div class="stack">
+          <p>Once the bridge is in place, Hermes cron can run a 2AM dream cycle: recent agent activity gets searched, synthesized, and written back into MemPalace as structured memory.</p>
+          <p>Your memory does not need a frontier model. Keep embeddings local, use the cheapest synthesis model that does the job, and escalate only the patterns that persist.</p>
+          <p><a class="button" href="dream-cycle.html">Read the dream-cycle notes</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="files-title">
+      <div class="section-head">
+        <h2 id="files-title">What is in the repo.</h2>
+        <p>No framework needed for the public page. The repository stays readable: scripts, config templates, docs, and MIT license.</p>
+      </div>
+      <div class="panel">
+        <div class="row"><strong>scripts</strong><span><code>install.sh</code> and <code>install.ps1</code> initialize MemPalace, start the MCP HTTP server, and configure Hermes.</span></div>
+        <div class="row"><strong>tunnel</strong><span><code>cloudflare-config.yml</code> documents the Cloudflare Tunnel route to the local MCP server.</span></div>
+        <div class="row"><strong>security</strong><span><code>auth-token-config.yaml</code> documents bearer-token setup for public tunnels.</span></div>
+        <div class="row"><strong>memory</strong><span><code>dream-cycle-config.yaml</code> documents optional nightly synthesis through Hermes cron.</span></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner frame">
+      <span>MemPalace Bridge. Your hardware. Your memory graph. $0.</span>
+      <span>Built on <a href="https://millaj.com/mempalace">MemPalace</a>, <a href="https://github.com/nousresearch/hermes-agent">Hermes Agent</a>, and Cloudflare Tunnel.</span>
+    </div>
+  </footer>
+
+  <script>
+    const copyButtons = document.querySelectorAll('[data-copy]');
+    copyButtons.forEach((button) => {
+      button.addEventListener('click', async () => {
+        const target = document.getElementById(button.dataset.copy);
+        if (!target) return;
+        try {
+          await navigator.clipboard.writeText(target.textContent.trim());
+          const original = button.textContent;
+          button.textContent = 'copied';
+          setTimeout(() => { button.textContent = original; }, 1400);
+        } catch (_) {
+          button.textContent = 'select text';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

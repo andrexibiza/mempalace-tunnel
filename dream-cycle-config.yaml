@@ -1,25 +1,22 @@
 # Dream Cycle — Nightly Episodic Synthesis
 # ========================================
 # Runs at 2AM silently while you sleep. Synthesizes 48 hours of agent activity
-# into structured insight stored in MemPalace (axl-factbook wing, dream-synthesis room).
+# into structured insight stored in MemPalace under your configured factbook wing.
 #
 # Your memory doesn't need a frontier model. Point this at the cheapest model
-# that does the job. DeepSeek V4 Pro Max is the recommendation — it's cheap,
-# fast, and produces excellent synthesis.
+# that does the job for your corpus. The model below is an example override,
+# not a requirement.
 
 # ── Cron schedule (2AM daily) ─────────────────────────────────────────────
 schedule: "0 2 * * *"
 
 # ── Model override — use ANY model from ANY provider ──────────────────────
 model:
-  # --- Recommended (cheap, fast, excellent synthesis) ---
-  provider: deepseek
-  model: deepseek/deepseek-v4-pro
+  # --- Example local synthesis model ---
+  provider: ollama
+  model: gemma4:e4b
 
   # --- Alternatives — uncomment and pick one ---
-  # provider: deepseek
-  # model: deepseek/deepseek-reasoner
-  #
   # provider: openai
   # model: openai/gpt-4o-mini
   #
@@ -50,13 +47,13 @@ deliver: local
 # 5. Writes a diary entry summarizing the run
 
 # ── Wings searched ────────────────────────────────────────────────────────
-# axl-episodic-verbatim, hermes-interactions, pages, axl-factbook,
-# cayenne, bottomsurgery-info — configured in the dream cycle prompt.
+# episodic activity, interactions, pages, factbook records — configured
+# in the dream cycle prompt.
 #
 # To customize: edit the prompt in your Hermes cron job. The prompt is
 # self-contained and lists the wings explicitly. Add yours, remove defaults.
 
-# ── Output rooms (axl-factbook wing) ──────────────────────────────────────
+# ── Output rooms (configured factbook wing) ───────────────────────────────
 # dream-synthesis/Patterns and Recurrences
 # dream-synthesis/Corrections Needing Enforcement
 # dream-synthesis/Progress Report
@@ -70,7 +67,6 @@ deliver: local
 #    model: <your chosen model>, schedule: 0 2 * * *
 # 3. That's it. Your dream cycle will start tonight at 2AM.
 #
-# The full dream cycle prompt is available in the docs:
+# The public dream-cycle notes are available in:
 #   docs/dream-cycle.html
-# Or in the Hermes cron output directory:
-#   ~/AppData/Local/hermes/cron/output/<job-id>/
+# Runtime outputs live in the Hermes cron output directory for the job.

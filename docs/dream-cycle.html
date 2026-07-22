@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Dream Cycle notes for MemPalace Bridge: optional nightly episodic synthesis through Hermes cron." />
+  <title>Dream Cycle — MemPalace Bridge</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07090d;
+      --panel: #101821;
+      --ink: #f1eadc;
+      --muted: #9ca8b6;
+      --quiet: #6f7c89;
+      --line: rgba(241, 234, 220, 0.14);
+      --accent: #ffb86b;
+      --accent-2: #72f0c7;
+      --radius: 22px;
+      --max: 1040px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --sans: Avenir Next, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
+      --serif: Georgia, Cambria, "Times New Roman", serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(255, 184, 107, 0.12), transparent 32rem),
+        radial-gradient(circle at 85% 10%, rgba(114, 240, 199, 0.08), transparent 28rem),
+        linear-gradient(180deg, var(--bg), #020304);
+      color: var(--ink);
+      font-family: var(--sans);
+      letter-spacing: -0.01em;
+    }
+    a { color: inherit; text-decoration-color: rgba(255,184,107,.45); text-underline-offset: .18em; }
+    a:hover { color: var(--accent); }
+    code, pre { font-family: var(--mono); }
+    .frame { width: min(var(--max), calc(100% - 40px)); margin: 0 auto; }
+    .nav { border-bottom: 1px solid var(--line); background: rgba(7,9,13,.78); backdrop-filter: blur(18px); position: sticky; top: 0; }
+    .nav-inner { min-height: 66px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .brand { font-weight: 780; text-decoration: none; letter-spacing: -.03em; }
+    .button { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; padding: 0 17px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,.04); text-decoration: none; }
+    header { padding: 84px 0 54px; }
+    .eyebrow { color: var(--accent-2); font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 18px; }
+    h1, h2, h3 { margin: 0; letter-spacing: -.055em; }
+    h1 { font-family: var(--serif); font-weight: 500; font-size: clamp(52px, 8vw, 96px); line-height: .92; max-width: 920px; text-wrap: balance; }
+    h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(34px, 5vw, 58px); line-height: .96; text-wrap: balance; }
+    h3 { font-size: 22px; }
+    p { color: var(--muted); font-size: 18px; line-height: 1.6; margin: 0; }
+    .lead { margin-top: 25px; color: #d8dee5; font-size: clamp(20px, 2vw, 25px); line-height: 1.4; max-width: 820px; }
+    section { border-top: 1px solid var(--line); padding: 64px 0; }
+    .split { display: grid; grid-template-columns: .85fr 1.15fr; gap: 34px; align-items: start; }
+    .stack { display: grid; gap: 16px; }
+    .panel { border: 1px solid var(--line); border-radius: var(--radius); background: rgba(255,255,255,.035); padding: 24px; }
+    .row { display: grid; grid-template-columns: 150px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+    .row:last-child { border-bottom: 0; }
+    .row strong { color: var(--accent); font-family: var(--mono); font-size: 13px; text-transform: uppercase; letter-spacing: .06em; }
+    .row span { color: var(--muted); line-height: 1.5; }
+    .terminal { border: 1px solid var(--line); border-radius: var(--radius); background: #05070a; overflow: hidden; }
+    .terminal-head { padding: 12px 16px; border-bottom: 1px solid var(--line); color: var(--quiet); font-family: var(--mono); font-size: 12px; }
+    pre { margin: 0; padding: 18px; color: #d8e6f3; white-space: pre-wrap; line-height: 1.58; overflow-x: auto; font-size: 13px; }
+    .note { border-left: 3px solid var(--accent); padding: 18px 20px; background: rgba(255,184,107,.065); border-radius: 0 16px 16px 0; }
+    footer { border-top: 1px solid var(--line); padding: 38px 0 56px; color: var(--quiet); }
+    @media (max-width: 820px) { .split { grid-template-columns: 1fr; } .row { grid-template-columns: 1fr; gap: 6px; } }
+    @media (max-width: 520px) { .frame { width: min(100% - 24px, var(--max)); } header { padding-top: 56px; } section { padding: 48px 0; } }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner frame">
+      <a class="brand" href="index.html">MemPalace Bridge</a>
+      <a class="button" href="https://github.com/andrexibiza/mempalace-tunnel">GitHub</a>
+    </div>
+  </nav>
+
+  <main class="frame">
+    <header>
+      <div class="eyebrow">optional nightly synthesis</div>
+      <h1>The dream cycle is how agent activity becomes durable memory.</h1>
+      <p class="lead">MemPalace Bridge handles reachability. The dream cycle is the next layer: a scheduled Hermes run that searches recent activity, synthesizes what matters, and writes structured memory back into MemPalace.</p>
+    </header>
+
+    <section>
+      <div class="split">
+        <h2>What happens at 2AM.</h2>
+        <div class="panel">
+          <div class="row"><strong>Search</strong><span>Hermes queries recent agent activity across configured memory wings. The default config can be customized around neutral surfaces such as episodic activity, interactions, pages, and factbook records.</span></div>
+          <div class="row"><strong>Synthesize</strong><span>The run produces as much synthesis as the material warrants. It is not a fixed checklist and not a daily fortune cookie.</span></div>
+          <div class="row"><strong>Persist</strong><span>Findings are written back into MemPalace so future agents can retrieve them instead of making the user restate the same context.</span></div>
+          <div class="row"><strong>Escalate</strong><span>Patterns that persist across nights can be routed into escalation rooms for follow-up instead of disappearing into chat history.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="split">
+        <h2>Your memory does not need a frontier model.</h2>
+        <div class="stack">
+          <p>The dream cycle is retrieval, synthesis, and record keeping. Use the cheapest model that produces reliable output for your corpus. Save the expensive models for work that actually needs them. The config below is an example, not a requirement.</p>
+          <div class="terminal">
+            <div class="terminal-head">dream-cycle-config.yaml</div>
+            <pre>schedule: "0 2 * * *"
+
+model:
+  provider: ollama
+  model: gemma4:e4b
+
+max_iterations: 200
+deliver: local</pre>
+          </div>
+          <div class="note"><p>The important thing is not which model gets picked this month. The important thing is that the memory graph survives model churn and keeps accumulating usable context.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="split">
+        <h2>How this connects to the bridge.</h2>
+        <div class="stack">
+          <p>MemPalace Bridge exposes the local MCP memory surface to agents. The dream cycle uses that surface as both input and output: read recent traces, write back distilled records.</p>
+          <p>That gives the agent system continuity. It can work today, leave receipts, sleep, and come back tomorrow with yesterday’s facts still reachable.</p>
+          <p><a class="button" href="index.html">Back to the bridge</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="frame">MemPalace Bridge · optional nightly synthesis through Hermes cron · local memory stays yours.</div>
+  </footer>
+</body>
+</html>
