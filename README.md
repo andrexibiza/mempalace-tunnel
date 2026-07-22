@@ -19,6 +19,42 @@ cloudflared tunnel --url http://127.0.0.1:8765
 Your cloud agents can now reach your local memory through the tunnel. Zero open ports,
 zero reverse proxy config, zero SSL certificates. Cloud handles all of that on the free tier.
 
+## Make MemPalace your Hermes memory provider
+
+Add this to `~/.hermes/config.yaml` — Hermes will auto-mine every turn to memory:
+
+```yaml
+memory:
+  provider: mempalace
+  memory_enabled: true
+
+mcp_servers:
+  mempalace:
+    url: http://127.0.0.1:8765/mcp
+    enabled: true
+    connect_timeout: 180
+    timeout: 180
+```
+
+No prompt injection. No voluntary retrieval. Your agents don't have to remember
+to remember — Hermes handles it automatically through native MemoryProvider hooks.
+
+## Auth token — secure your tunnel
+
+When the tunnel is active, your MCP endpoint is reachable from the internet.
+Set a bearer token. See `auth-token-config.yaml` for the full guide.
+
+```bash
+# Generate your token (save it — there's no recovery)
+python3 -c "import secrets; print('mcp-' + secrets.token_hex(16))"
+
+# Restart the server with auth
+export MEMPALACE_MCP_HTTP_TOKEN="your-token-here"
+mempalace mcp serve --host 127.0.0.1 --port 8765
+```
+
+Without the token: 401. With it: the tunnel is secure.
+
 ## Why this exists
 
 The AI space is filled with companies trying to sell you agent memory as a subscription.
@@ -63,6 +99,7 @@ agent activity into structured insight. See `dream-cycle-config.yaml` for the fu
 - `install.ps1` — Windows setup
 - `cloudflare-config.yml` — annotated Cloudflare tunnel config template
 - `dream-cycle-config.yaml` — nightly memory synthesis config with model overrides
+- `auth-token-config.yaml` — secure your MCP server with a bearer token (required for tunnel, optional for localhost)
 - `LICENSE` — MIT
 
 ## Credits
