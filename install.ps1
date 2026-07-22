@@ -15,3 +15,6 @@ Write-Host "    Run this in a separate terminal:"
 Write-Host "    cloudflared tunnel --url http://127.0.0.1:8765"
 Write-Host ""
 Write-Host "Done. Your memory is now tunneled to the cloud." -ForegroundColor Green
+Write-Host ""
+Write-Host "Next: set up the dream cycle — edit dream-cycle-config.yaml" -ForegroundColor Cyan
+Write-Host "      and add it to your Hermes cron config. Use any model." -ForegroundColor Cyan

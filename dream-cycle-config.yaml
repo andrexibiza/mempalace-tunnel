@@ -1,0 +1,76 @@
+# Dream Cycle — Nightly Episodic Synthesis
+# ========================================
+# Runs at 2AM silently while you sleep. Synthesizes 48 hours of agent activity
+# into structured insight stored in MemPalace (axl-factbook wing, dream-synthesis room).
+#
+# Your memory doesn't need a frontier model. Point this at the cheapest model
+# that does the job. DeepSeek V4 Pro Max is the recommendation — it's cheap,
+# fast, and produces excellent synthesis.
+
+# ── Cron schedule (2AM daily) ─────────────────────────────────────────────
+schedule: "0 2 * * *"
+
+# ── Model override — use ANY model from ANY provider ──────────────────────
+model:
+  # --- Recommended (cheap, fast, excellent synthesis) ---
+  provider: deepseek
+  model: deepseek/deepseek-v4-pro
+
+  # --- Alternatives — uncomment and pick one ---
+  # provider: deepseek
+  # model: deepseek/deepseek-reasoner
+  #
+  # provider: openai
+  # model: openai/gpt-4o-mini
+  #
+  # provider: anthropic
+  # model: anthropic/claude-haiku-3.5
+  #
+  # provider: openrouter
+  # model: google/gemini-2.0-flash-001
+  #
+  # provider: openrouter
+  # model: meta-llama/llama-4-maverick
+
+# ── Iteration budget (max tool calls per run) ─────────────────────────────
+max_iterations: 200
+
+# ── Delivery ───────────────────────────────────────────────────────────────
+# "local" = store synthesis in MemPalace, don't send notifications.
+# The dream cycle runs SILENT unless it fails completely. You're asleep.
+deliver: local
+
+# ── What the dream cycle does ─────────────────────────────────────────────
+# 1. Queries 5 facets across 6 memory wings (corrections, problems, people,
+#    projects, health, decisions) — 10 results per query
+# 2. Loads the current factbook and the last 5 dream entries for cross-reference
+# 3. Synthesizes findings into as many drawers as the material warrants —
+#    not a fixed slot count, not a checklist
+# 4. Flags persistent patterns spanning 2+ nights to an escalation room
+# 5. Writes a diary entry summarizing the run
+
+# ── Wings searched ────────────────────────────────────────────────────────
+# axl-episodic-verbatim, hermes-interactions, pages, axl-factbook,
+# cayenne, bottomsurgery-info — configured in the dream cycle prompt.
+#
+# To customize: edit the prompt in your Hermes cron job. The prompt is
+# self-contained and lists the wings explicitly. Add yours, remove defaults.
+
+# ── Output rooms (axl-factbook wing) ──────────────────────────────────────
+# dream-synthesis/Patterns and Recurrences
+# dream-synthesis/Corrections Needing Enforcement
+# dream-synthesis/Progress Report
+# dream-synthesis/New Candidate Facts
+# dream-synthesis/People Updates
+# dream-escalations/PERSISTENT: <pattern>  (only when a pattern spans 2+ nights)
+
+# ── Quick setup ───────────────────────────────────────────────────────────
+# 1. Copy this file's model section into your Hermes cron config
+# 2. Create the cron job with `hermes cron create` pointing at:
+#    model: <your chosen model>, schedule: 0 2 * * *
+# 3. That's it. Your dream cycle will start tonight at 2AM.
+#
+# The full dream cycle prompt is available in the docs:
+#   docs/dream-cycle.html
+# Or in the Hermes cron output directory:
+#   ~/AppData/Local/hermes/cron/output/<job-id>/
